@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import MainNavBarLinks from './MainNavBarLinks';
+
 const MainNavBar = () => {
   return (
     <nav className="bg-base-300">
@@ -27,13 +30,15 @@ const MainNavBar = () => {
                 </svg>
               </label>
             </div>
-            <div className="mx-2 flex-1 px-2 text-lg">Bible Games</div>
+            <div className="mx-2 flex-1 px-2 text-lg">
+              <Link to="/" className="cursor-pointer">
+                Bible Games
+              </Link>
+            </div>
             <div className="hidden flex-none lg:block">
               <ul className="menu menu-horizontal text-base">
                 {/* Navbar menu content here */}
-                <li>
-                  <a>Shuffler</a>
-                </li>
+                <MainNavBarLinks />
               </ul>
             </div>
           </div>
@@ -46,9 +51,7 @@ const MainNavBar = () => {
           ></label>
           <ul className="menu min-h-full w-80 bg-base-200 p-4 text-base">
             {/* Sidebar content here */}
-            <li>
-              <a>Shuffler</a>
-            </li>
+            <MainNavBarLinks />
           </ul>
         </div>
       </div>
