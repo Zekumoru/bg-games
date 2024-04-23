@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1 {
+    @apply text-4xl;
+  }
+}
+
 @layer utilities {
   .page-center {
     @apply mx-auto max-w-screen-xl;
