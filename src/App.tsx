@@ -1,8 +1,19 @@
+import { Route, Routes } from 'react-router-dom';
+import MainNavBar from './components/MainNavBar';
+import Home from './components/Home';
+import NotFound from './components/NotFound';
+
 function App() {
   return (
-    <main>
-      <h1>Hello world!</h1>
-    </main>
+    <>
+      <MainNavBar />
+      <main className="page-center p-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </>
   );
 }
 
