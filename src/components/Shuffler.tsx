@@ -25,7 +25,7 @@ const Shuffler = () => {
   }, [navigate, toStart]);
 
   return (
-    <>
+    <div className="page-center p-4">
       {isPending && <LoadingScreen />}
 
       <h1 className="mb-4">Shuffler</h1>
@@ -45,7 +45,7 @@ const Shuffler = () => {
           View cards
         </button>
       </div>
-    </>
+    </div>
   );
 };
 

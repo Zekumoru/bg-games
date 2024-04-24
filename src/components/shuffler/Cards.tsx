@@ -22,7 +22,7 @@ const Cards = () => {
   }, [status, refetchCards]);
 
   return (
-    <>
+    <div className="page-center p-4">
       {isMutationPending && <LoadingScreen />}
 
       <h1>Shuffler Cards</h1>
@@ -80,7 +80,7 @@ const Cards = () => {
         ref={updateModalRef}
         onSuccess={refetchCards}
       />
-    </>
+    </div>
   );
 };
 
