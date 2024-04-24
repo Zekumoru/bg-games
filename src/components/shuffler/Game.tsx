@@ -49,13 +49,14 @@ const Game = () => {
 
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 's') scrollToGameViewARef.current?.click();
+
       if (game?.cards.findIndex((card) => card.guessedAt === null) === -1)
         return; // if game finished, do nothing
 
       if (e.key === 'f') setFlipped(!flipped);
       if (e.key === 'a') handleNextCard(false);
       if (e.key === 'g') handleNextCard(true);
-      if (e.key === 's') scrollToGameViewARef.current?.click();
     };
 
     document.body.addEventListener('keyup', handleKeyUp);
