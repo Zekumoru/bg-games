@@ -25,6 +25,15 @@ const Shuffler = () => {
         <button className="btn btn-primary" onClick={() => startNewGame()}>
           Start new game
         </button>
+
+        {gameId && (
+          <button
+            className="btn btn-accent"
+            onClick={() => navigate('/shuffler/game')}
+          >
+            Resume game
+          </button>
+        )}
         <button
           className="btn btn-neutral"
           onClick={() => navigate('/shuffler/cards')}
