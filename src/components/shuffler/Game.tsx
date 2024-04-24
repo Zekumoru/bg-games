@@ -6,6 +6,10 @@ import LoadingScreen from '../LoadingScreen';
 import useStartNewGame from './hooks/useStartNewGame';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import shuffle from '../../utils/shuffle';
+import useSound from 'use-sound';
+import drumRoll from '../../assets/drum-roll.mp3';
+import fanfare from '../../assets/fanfare.mp3';
+import RandomWordShuffling from './RandomWordShuffling';
 
 const Game = () => {
   const scrollToGameViewARef = useRef<HTMLAnchorElement | null>(null);
@@ -17,6 +21,14 @@ const Game = () => {
   const [startNewGame, isStartingNewGame] = useStartNewGame((gameId) =>
     setGameId(gameId),
   );
+  const [currentPointer, setCurrentPointer] = useState(-2);
+  const [isPlayingSound, setIsPlayingSound] = useState(false);
+  const [playFanfare] = useSound(fanfare);
+  const [playDrumRoll] = useSound(drumRoll, {
+    onend: () => {
+      setIsPlayingSound(false);
+    },
+  });
 
   useEffect(() => {
     refetch();
@@ -28,8 +40,19 @@ const Game = () => {
   }, [status, refetch]);
 
   const totalCards = game?.cards.length ?? 0;
-  const currentPointer =
-    game?.cards.findIndex((card) => card.guessedAt === null) ?? 0;
+  useEffect(() => {
+    if (!game) return;
+    setCurrentPointer(game.cards.findIndex((card) => card.guessedAt === null));
+  }, [game]);
+
+  useEffect(() => {
+    // -1 means finished game
+    if (currentPointer === -1) return playFanfare();
+    if (currentPointer < 0) return;
+
+    setIsPlayingSound(true);
+    playDrumRoll();
+  }, [playDrumRoll, playFanfare, currentPointer]);
 
   const currentCard = game?.cards[currentPointer];
   const nextCard = game?.cards[currentPointer + 1];
@@ -54,6 +77,8 @@ const Game = () => {
       if (game?.cards.findIndex((card) => card.guessedAt === null) === -1)
         return; // if game finished, do nothing
 
+      if (isPlayingSound) return;
+
       if (e.key === 'f') setFlipped(!flipped);
       if (e.key === 'a') handleNextCard(false);
       if (e.key === 'g') handleNextCard(true);
@@ -61,7 +86,7 @@ const Game = () => {
 
     document.body.addEventListener('keyup', handleKeyUp);
     return () => document.body.removeEventListener('keyup', handleKeyUp);
-  }, [game, flipped, handleNextCard]);
+  }, [game, flipped, handleNextCard, isPlayingSound]);
 
   const handleReshuffleNext = () => {
     if (!game) return;
@@ -96,12 +121,30 @@ const Game = () => {
             <>
               {/* CARD CONTENT */}
               <div className="text-8xl">
-                {!gameFinished
-                  ? titleCase(
-                      flipped ? currentCard!.name : currentCard!.shuffled,
-                    )
-                  : 'Game finished!'}
+                {gameFinished ? (
+                  'Game finished!'
+                ) : isPlayingSound ? (
+                  <RandomWordShuffling
+                    words={game.cards.map((card) => card.name)}
+                    paused={!isPlayingSound}
+                    wordsPerMs={10}
+                  />
+                ) : (
+                  currentCard &&
+                  titleCase(flipped ? currentCard.name : currentCard.shuffled)
+                )}
               </div>
+
+              {gameFinished && (
+                <div className="my-4 text-center text-2xl">
+                  You've correctly guessed{' '}
+                  {game.cards.reduce((count, card) => {
+                    if (card.guessed) return count + 1;
+                    return count;
+                  }, 0)}{' '}
+                  out of {totalCards} cards!
+                </div>
+              )}
 
               <div className="absolute bottom-12 left-16 right-16 flex items-center justify-between text-4xl">
                 <div>
@@ -112,19 +155,22 @@ const Game = () => {
                 {!gameFinished ? (
                   <div className="flex gap-4">
                     <button
-                      className="btn btn-ghost h-auto px-8 py-4 text-2xl"
+                      className={`btn btn-ghost h-auto px-8 py-4 text-2xl ${isPlayingSound ? 'btn-disabled' : ''}`}
+                      disabled={isPlayingSound}
                       onClick={() => setFlipped(!flipped)}
                     >
                       Flip (F)
                     </button>
                     <button
-                      className="btn btn-error h-auto px-8 py-4 text-2xl"
+                      className={`btn btn-error h-auto px-8 py-4 text-2xl ${isPlayingSound ? 'btn-disabled' : ''}`}
+                      disabled={isPlayingSound}
                       onClick={() => handleNextCard(false)}
                     >
                       Fail (A)
                     </button>
                     <button
-                      className="btn btn-success h-auto px-8 py-4 text-2xl"
+                      className={`btn btn-success h-auto px-8 py-4 text-2xl ${isPlayingSound ? 'btn-disabled' : ''}`}
+                      disabled={isPlayingSound}
                       onClick={() => handleNextCard(true)}
                     >
                       Guess (G)
