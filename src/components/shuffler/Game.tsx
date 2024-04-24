@@ -29,6 +29,7 @@ const Game = () => {
     game?.cards.findIndex((card) => card.guessedAt === null) ?? 0;
 
   const currentCard = game?.cards[currentPointer];
+  const nextCard = game?.cards[currentPointer + 1];
   const gameFinished = currentPointer === -1;
 
   const handleNextCard = useCallback(
@@ -125,6 +126,47 @@ const Game = () => {
       </div>
 
       {/* GUESSED LIST VIEW */}
+      <div className="page-center flex min-h-screen justify-between p-4">
+        <div>
+          <div className="mb-4 text-4xl">Finished Cards</div>
+          <ul className="flex flex-col gap-2">
+            {game &&
+              game.cards
+                .filter((card) => card.guessedAt !== null)
+                .map((card, index) => (
+                  <li
+                    className="flex items-center gap-2 text-2xl"
+                    key={card.name}
+                  >
+                    <div>{index + 1}</div>
+                    <div>
+                      {card.name} ({card.shuffled})
+                    </div>
+                    {card.guessed ? (
+                      <div className="badge badge-success badge-outline">
+                        Guessed
+                      </div>
+                    ) : (
+                      <div className="badge badge-error badge-outline">
+                        Failed
+                      </div>
+                    )}
+                  </li>
+                ))}
+          </ul>
+        </div>
+
+        <div>
+          <div className="mb-4 min-w-96 text-4xl">Up Next</div>
+          <div className="my-2 text-3xl">
+            {nextCard ? titleCase(nextCard.shuffled) : 'None!'}
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <button className="btn btn-accent">Show</button>
+            <button className="btn btn-primary">Reshuffle</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
