@@ -13,6 +13,14 @@ const useServerError = <T extends StatusResponse>(
       return setError(error);
     }
 
+    if (axiosError) {
+      const error: StatusResponse = {
+        status: 400,
+        message: axiosError.message,
+      };
+      return setError(error as T);
+    }
+
     setError(undefined);
   }, [axiosError]);
 
