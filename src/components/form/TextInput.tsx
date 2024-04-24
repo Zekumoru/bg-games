@@ -5,11 +5,13 @@ const TextInput = ({
   value,
   setValue,
   errMessage,
+  onEnter,
 }: {
   label: string;
   value: string;
   setValue: (value: string) => void;
   errMessage?: string;
+  onEnter?: () => void;
 }) => {
   // reactive error handling, meaning, show error styles upon error
   // then remove error styles on input change
@@ -32,6 +34,9 @@ const TextInput = ({
         className={`input input-bordered ${hasError ? 'input-error' : ''}`}
         placeholder="Type here"
         value={value}
+        onKeyUp={(e) => {
+          if (e.key === 'Enter') onEnter?.();
+        }}
         onChange={(e) => {
           setValue(e.target.value);
           setHasError(false);
