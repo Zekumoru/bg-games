@@ -187,11 +187,11 @@ const Game = () => {
           <div>
             <div className="mb-4 min-w-96 text-4xl">Up Next</div>
             <div className="my-2 text-3xl">
-              {nextCard
+              {!gameFinished && nextCard
                 ? titleCase(nextFlipped ? nextCard.name : nextCard.shuffled)
                 : 'All done!'}
             </div>
-            {nextCard && (
+            {!gameFinished && nextCard && (
               <div className="flex flex-col items-start gap-2">
                 <button
                   className="btn btn-accent"
