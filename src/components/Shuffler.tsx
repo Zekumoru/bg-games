@@ -1,28 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import useNewGame from './shuffler/hooks/useNewGame';
 import LoadingScreen from './LoadingScreen';
-import { useEffect, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
+import useStartNewGame from './shuffler/hooks/useStartNewGame';
 
 const Shuffler = () => {
   const navigate = useNavigate();
-  const [startNewGame, response, _error, isPending] = useNewGame();
+  const [startNewGame, isPending] = useStartNewGame(() =>
+    navigate('/shuffler/game'),
+  );
   // use the gameId here to check if a game already exists
-  const [gameId, setGameId] = useLocalStorage('gameId');
-  const [toStart, setToStart] = useState(false);
-
-  useEffect(() => {
-    if (!response) return;
-
-    if (response.status === 201) {
-      setGameId(response.gameId);
-      setToStart(true);
-    }
-  }, [response, setGameId]);
-
-  useEffect(() => {
-    if (toStart) navigate('/shuffler/game');
-  }, [navigate, toStart]);
+  const gameId = useLocalStorage('gameId')[0];
 
   return (
     <div className="page-center p-4">

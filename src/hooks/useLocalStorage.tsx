@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-const useLocalStorage: (
+const useLocalStorage = (
   key: string,
   initialValue?: string | (() => string),
-) => [string, React.Dispatch<string>] = (key, initialValue) => {
+) => {
   const [value, setValue] = useState<string>(() => {
     const value = localStorage.getItem(key);
     if (value !== null) return value;

@@ -1,15 +1,23 @@
 import { useEffect, useState } from 'react';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import titleCase from '../../utils/titleCase';
 import useGame from './hooks/useGame';
 import useGameUpdate from './hooks/useGameUpdate';
 import LoadingScreen from '../LoadingScreen';
+import useStartNewGame from './hooks/useStartNewGame';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
 const Game = () => {
-  const [gameId] = useLocalStorage('gameId');
+  const [gameId, setGameId] = useLocalStorage('gameId');
   const [game, refetch, error, gameFetching] = useGame(gameId);
   const [updateGame, status, _updateError, gameUpdating] = useGameUpdate();
   const [flipped, setFlipped] = useState(false);
+  const [startNewGame, isStartingNewGame] = useStartNewGame((gameId) =>
+    setGameId(gameId),
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [gameId, refetch]);
 
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -42,7 +50,7 @@ const Game = () => {
 
   return (
     <div>
-      {gameUpdating && <LoadingScreen />}
+      {(gameUpdating || isStartingNewGame) && <LoadingScreen />}
 
       {/* CARD VIEW */}
       <div
@@ -72,7 +80,7 @@ const Game = () => {
                   {totalCards} cards
                 </div>
 
-                {!gameFinished && (
+                {!gameFinished ? (
                   <div className="flex gap-4">
                     <button
                       className="btn btn-ghost h-auto px-8 py-4 text-2xl"
@@ -87,6 +95,13 @@ const Game = () => {
                       Next (N)
                     </button>
                   </div>
+                ) : (
+                  <button
+                    className="btn h-auto px-8 py-4 text-2xl"
+                    onClick={() => startNewGame()}
+                  >
+                    Start New Game
+                  </button>
                 )}
               </div>
             </>
