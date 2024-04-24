@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import useCardMutation from './hooks/useCardMutation';
 import TextInput from '../form/TextInput';
+import LoadingScreen from '../LoadingScreen';
 
 const CardModal = forwardRef<
   HTMLDialogElement | null,
@@ -33,12 +34,7 @@ const CardModal = forwardRef<
 
   return (
     <dialog className="modal" ref={modalRef}>
-      {isPending && (
-        <div className="fixed left-0 top-0 z-50 grid h-screen w-screen place-content-center">
-          <div className="absolute bottom-0 top-0 h-screen w-screen bg-neutral-800 opacity-40"></div>
-          <div className="loading-circle z-10"></div>
-        </div>
-      )}
+      {isPending && <LoadingScreen />}
       <div className="modal-box">
         <h3 className="text-lg font-bold">{title}</h3>
 
