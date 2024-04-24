@@ -105,6 +105,9 @@ const Game = () => {
     updateGame(toUpdateGame);
   };
 
+  const finishedCards =
+    game?.cards.filter((card) => card.guessedAt !== null) ?? [];
+
   return (
     <div>
       {(gameUpdating || isStartingNewGame) && <LoadingScreen />}
@@ -117,10 +120,10 @@ const Game = () => {
         <div className="page-center relative grid h-full place-content-center p-4">
           {gameFetching ? (
             <div>Game is loading...</div>
-          ) : error ? (
+          ) : error && gameId !== '' ? (
             <div>Error: {error.message}</div>
           ) : !game ? (
-            <div>No game found!</div>
+            <div className="text-8xl">No game found!</div>
           ) : (
             <>
               {/* CARD CONTENT */}
@@ -210,29 +213,32 @@ const Game = () => {
           <div>
             <div className="my-4 text-4xl">Finished Cards</div>
             <ul className="flex flex-col gap-2">
-              {game &&
-                game.cards
-                  .filter((card) => card.guessedAt !== null)
-                  .map((card, index) => (
-                    <li
-                      className="flex items-center gap-2 text-2xl"
-                      key={card.name}
-                    >
-                      <div>{index + 1}</div>
-                      <div>
-                        {card.name} ({card.shuffled})
+              {finishedCards.length === 0 ? (
+                <div className="text-2xl">
+                  You haven't guessed any cards yet.
+                </div>
+              ) : (
+                finishedCards.map((card, index) => (
+                  <li
+                    className="flex items-center gap-2 text-2xl"
+                    key={card.name}
+                  >
+                    <div>{index + 1}</div>
+                    <div>
+                      {card.name} ({card.shuffled})
+                    </div>
+                    {card.guessed ? (
+                      <div className="badge badge-success badge-outline">
+                        Guessed
                       </div>
-                      {card.guessed ? (
-                        <div className="badge badge-success badge-outline">
-                          Guessed
-                        </div>
-                      ) : (
-                        <div className="badge badge-error badge-outline">
-                          Failed
-                        </div>
-                      )}
-                    </li>
-                  ))}
+                    ) : (
+                      <div className="badge badge-error badge-outline">
+                        Failed
+                      </div>
+                    )}
+                  </li>
+                ))
+              )}
             </ul>
           </div>
           <div>
