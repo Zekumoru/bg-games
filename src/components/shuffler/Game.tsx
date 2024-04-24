@@ -29,6 +29,7 @@ const Game = () => {
   const currentPointer = game?.cards.findIndex((card) => !card.guessed) ?? 0;
 
   const currentCard = game?.cards[currentPointer];
+  const gameFinished = currentPointer === -1;
 
   const handleNextCard = () => {
     if (!game) return;
@@ -58,27 +59,35 @@ const Game = () => {
             <>
               {/* CARD CONTENT */}
               <div className="text-8xl">
-                {titleCase(flipped ? currentCard!.name : currentCard!.shuffled)}
+                {!gameFinished
+                  ? titleCase(
+                      flipped ? currentCard!.name : currentCard!.shuffled,
+                    )
+                  : 'Game finished!'}
               </div>
 
               <div className="absolute bottom-12 left-16 right-16 flex items-center justify-between text-4xl">
                 <div>
-                  {currentPointer + 1} of {totalCards} cards
+                  {!gameFinished ? currentPointer + 1 : totalCards} of{' '}
+                  {totalCards} cards
                 </div>
-                <div className="flex gap-4">
-                  <button
-                    className="btn btn-ghost h-auto px-8 py-4 text-2xl"
-                    onClick={() => setFlipped(!flipped)}
-                  >
-                    Flip (F)
-                  </button>
-                  <button
-                    className="btn h-auto px-8 py-4 text-2xl"
-                    onClick={handleNextCard}
-                  >
-                    Next (N)
-                  </button>
-                </div>
+
+                {!gameFinished && (
+                  <div className="flex gap-4">
+                    <button
+                      className="btn btn-ghost h-auto px-8 py-4 text-2xl"
+                      onClick={() => setFlipped(!flipped)}
+                    >
+                      Flip (F)
+                    </button>
+                    <button
+                      className="btn h-auto px-8 py-4 text-2xl"
+                      onClick={handleNextCard}
+                    >
+                      Next (N)
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}
