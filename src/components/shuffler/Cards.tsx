@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardModal from './CardModal';
 import useCardsQuery from './hooks/useCardsQuery';
+import CardItem from './CardItem';
 
 const Cards = () => {
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -35,19 +36,8 @@ const Cards = () => {
         <div>Could not get cards from the server.</div>
       ) : (
         <ul className="flex flex-col gap-4">
-          {cards.map(({ name }, index) => (
-            <li key={name} className="card bg-neutral shadow-xl">
-              <div className="card-body flex-row items-center justify-between p-4">
-                <div className="flex gap-2 text-lg">
-                  <div>{index + 1}</div>
-                  <div>{name}</div>
-                </div>
-                <div className="card-actions">
-                  <button className="btn">Edit</button>
-                  <button className="btn btn-error">Delete</button>
-                </div>
-              </div>
-            </li>
+          {cards.map((card, index) => (
+            <CardItem key={card.name} card={card} index={index} />
           ))}
         </ul>
       )}
