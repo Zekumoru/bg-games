@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import titleCase from '../../utils/titleCase';
 import useGame from './hooks/useGame';
 import useGameUpdate from './hooks/useGameUpdate';
 import LoadingScreen from '../LoadingScreen';
 import useStartNewGame from './hooks/useStartNewGame';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import shuffle from '../../utils/shuffle';
 
 const Game = () => {
+  const scrollToGameViewARef = useRef<HTMLAnchorElement | null>(null);
   const [gameId, setGameId] = useLocalStorage('gameId');
   const [game, refetch, error, gameFetching] = useGame(gameId);
   const [updateGame, status, _updateError, gameUpdating] = useGameUpdate();
@@ -53,11 +55,25 @@ const Game = () => {
       if (e.key === 'f') setFlipped(!flipped);
       if (e.key === 'a') handleNextCard(false);
       if (e.key === 'g') handleNextCard(true);
+      if (e.key === 's') scrollToGameViewARef.current?.click();
     };
 
     document.body.addEventListener('keyup', handleKeyUp);
     return () => document.body.removeEventListener('keyup', handleKeyUp);
   }, [game, flipped, handleNextCard]);
+
+  const handleReshuffleNext = () => {
+    if (!game) return;
+    if (!nextCard) return;
+    if (gameFinished) return;
+
+    const toUpdateGame = structuredClone(game);
+    const toUpdateNextCard = toUpdateGame.cards[currentPointer + 1];
+    toUpdateNextCard.shuffled = shuffle(toUpdateNextCard.name.split('')).join(
+      '',
+    );
+    updateGame(toUpdateGame);
+  };
 
   return (
     <div>
@@ -65,6 +81,7 @@ const Game = () => {
 
       {/* CARD VIEW */}
       <div
+        id="game-view"
         className={`h-screen transition-colors ${flipped ? 'bg-accent text-accent-content' : 'bg-primary text-primary-content'}`}
       >
         <div className="page-center relative grid h-full place-content-center p-4">
@@ -127,51 +144,69 @@ const Game = () => {
       </div>
 
       {/* GUESSED LIST VIEW */}
-      <div className="page-center flex min-h-screen justify-between p-4">
-        <div>
-          <div className="mb-4 text-4xl">Finished Cards</div>
-          <ul className="flex flex-col gap-2">
-            {game &&
-              game.cards
-                .filter((card) => card.guessedAt !== null)
-                .map((card, index) => (
-                  <li
-                    className="flex items-center gap-2 text-2xl"
-                    key={card.name}
-                  >
-                    <div>{index + 1}</div>
-                    <div>
-                      {card.name} ({card.shuffled})
-                    </div>
-                    {card.guessed ? (
-                      <div className="badge badge-success badge-outline">
-                        Guessed
-                      </div>
-                    ) : (
-                      <div className="badge badge-error badge-outline">
-                        Failed
-                      </div>
-                    )}
-                  </li>
-                ))}
-          </ul>
+      <div className="page-center min-h-screen p-4">
+        <div className="flex items-center gap-2">
+          <a
+            ref={scrollToGameViewARef}
+            href="#game-view"
+            className="link link-primary"
+          >
+            Scroll to game view
+          </a>
+          <kbd className="kbd kbd-sm text-primary">S</kbd>
         </div>
-
-        <div>
-          <div className="mb-4 min-w-96 text-4xl">Up Next</div>
-          <div className="my-2 text-3xl">
-            {nextCard
-              ? titleCase(nextFlipped ? nextCard.name : nextCard.shuffled)
-              : 'None!'}
+        <div className="flex justify-between ">
+          <div>
+            <div className="my-4 text-4xl">Finished Cards</div>
+            <ul className="flex flex-col gap-2">
+              {game &&
+                game.cards
+                  .filter((card) => card.guessedAt !== null)
+                  .map((card, index) => (
+                    <li
+                      className="flex items-center gap-2 text-2xl"
+                      key={card.name}
+                    >
+                      <div>{index + 1}</div>
+                      <div>
+                        {card.name} ({card.shuffled})
+                      </div>
+                      {card.guessed ? (
+                        <div className="badge badge-success badge-outline">
+                          Guessed
+                        </div>
+                      ) : (
+                        <div className="badge badge-error badge-outline">
+                          Failed
+                        </div>
+                      )}
+                    </li>
+                  ))}
+            </ul>
           </div>
-          <div className="flex flex-col items-start gap-2">
-            <button
-              className="btn btn-accent"
-              onClick={() => setNextFlipped(!nextFlipped)}
-            >
-              Show
-            </button>
-            <button className="btn btn-primary">Reshuffle</button>
+          <div>
+            <div className="mb-4 min-w-96 text-4xl">Up Next</div>
+            <div className="my-2 text-3xl">
+              {nextCard
+                ? titleCase(nextFlipped ? nextCard.name : nextCard.shuffled)
+                : 'All done!'}
+            </div>
+            {nextCard && (
+              <div className="flex flex-col items-start gap-2">
+                <button
+                  className="btn btn-accent"
+                  onClick={() => setNextFlipped(!nextFlipped)}
+                >
+                  {nextFlipped ? 'Hide' : 'Show'}
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleReshuffleNext()}
+                >
+                  Reshuffle
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
