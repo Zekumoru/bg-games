@@ -1,10 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import useCardMutation from './hooks/useCardMutation';
 import TextInput from '../form/TextInput';
 
@@ -12,23 +6,20 @@ const CardModal = forwardRef<
   HTMLDialogElement | null,
   {
     title: string;
-    type: 'create' | 'update';
-    initialName?: string;
+    buttonLabel: string;
+    name: string;
+    setName: (name: string) => void;
+    onSubmit?: (mutateCard: ReturnType<typeof useCardMutation>[0]) => void;
     onSuccess?: () => void;
   }
->(({ title, type, initialName, onSuccess }, ref) => {
+>(({ title, buttonLabel, name, setName, onSubmit, onSuccess }, ref) => {
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  const [name, setName] = useState(type === 'update' ? initialName ?? '' : '');
   const [mutateCard, status, error, isPending] = useCardMutation();
 
   useImperativeHandle<HTMLDialogElement | null, HTMLDialogElement | null>(
     ref,
     () => modalRef.current,
   );
-
-  const addCard = () => {
-    mutateCard({ type: 'create', data: { name } });
-  };
 
   useEffect(() => {
     if (!status) return;
@@ -38,11 +29,7 @@ const CardModal = forwardRef<
       setName('');
       onSuccess?.();
     }
-  }, [status, onSuccess]);
-
-  const handleSubmit = () => {
-    if (type === 'create') addCard();
-  };
+  }, [status, onSuccess, setName]);
 
   return (
     <dialog className="modal" ref={modalRef}>
@@ -60,7 +47,7 @@ const CardModal = forwardRef<
           value={name}
           setValue={setName}
           errMessage={error?.errors.name?.msg}
-          onEnter={handleSubmit}
+          onEnter={() => onSubmit?.(mutateCard)}
         />
 
         <div className="modal-action">
@@ -68,7 +55,7 @@ const CardModal = forwardRef<
             className="flex gap-2"
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit();
+              onSubmit?.(mutateCard);
             }}
           >
             <button
@@ -79,7 +66,7 @@ const CardModal = forwardRef<
               Close
             </button>
             <button className="btn btn-primary" type="submit">
-              Add card
+              {buttonLabel}
             </button>
           </form>
         </div>
