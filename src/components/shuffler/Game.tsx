@@ -47,12 +47,16 @@ const Game = () => {
 
   useEffect(() => {
     // -1 means finished game
-    if (currentPointer === -1) return playFanfare();
+    if (currentPointer === -1) {
+      playFanfare();
+      setGameId('');
+      return;
+    }
     if (currentPointer < 0) return;
 
     setIsPlayingSound(true);
     playDrumRoll();
-  }, [playDrumRoll, playFanfare, currentPointer]);
+  }, [playDrumRoll, playFanfare, currentPointer, setGameId]);
 
   const currentCard = game?.cards[currentPointer];
   const nextCard = game?.cards[currentPointer + 1];
