@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import titleCase from '../../utils/titleCase';
 import useGame from './hooks/useGame';
 import useGameUpdate from './hooks/useGameUpdate';
@@ -20,33 +20,42 @@ const Game = () => {
   }, [gameId, refetch]);
 
   useEffect(() => {
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'f') setFlipped(!flipped);
-    };
-
-    document.body.addEventListener('keyup', handleKeyUp);
-    return () => document.body.removeEventListener('keyup', handleKeyUp);
-  }, [flipped]);
-
-  useEffect(() => {
     if (!status) return;
     if (status.status === 200) refetch();
   }, [status, refetch]);
 
   const totalCards = game?.cards.length ?? 0;
-  const currentPointer = game?.cards.findIndex((card) => !card.guessed) ?? 0;
+  const currentPointer =
+    game?.cards.findIndex((card) => card.guessedAt === null) ?? 0;
 
   const currentCard = game?.cards[currentPointer];
   const gameFinished = currentPointer === -1;
 
-  const handleNextCard = () => {
-    if (!game) return;
+  const handleNextCard = useCallback(
+    (guessed: boolean) => {
+      if (!game) return;
 
-    const toUpdateGame = structuredClone(game);
-    toUpdateGame.cards[currentPointer].guessed = true;
-    toUpdateGame.cards[currentPointer].guessedAt = new Date().toUTCString();
-    updateGame(toUpdateGame);
-  };
+      const toUpdateGame = structuredClone(game);
+      toUpdateGame.cards[currentPointer].guessed = guessed;
+      toUpdateGame.cards[currentPointer].guessedAt = new Date().toUTCString();
+      updateGame(toUpdateGame);
+    },
+    [game, currentPointer, updateGame],
+  );
+
+  useEffect(() => {
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (game?.cards.findIndex((card) => card.guessedAt === null) === -1)
+        return; // if game finished, do nothing
+
+      if (e.key === 'f') setFlipped(!flipped);
+      if (e.key === 'a') handleNextCard(false);
+      if (e.key === 'g') handleNextCard(true);
+    };
+
+    document.body.addEventListener('keyup', handleKeyUp);
+    return () => document.body.removeEventListener('keyup', handleKeyUp);
+  }, [game, flipped, handleNextCard]);
 
   return (
     <div>
@@ -89,10 +98,16 @@ const Game = () => {
                       Flip (F)
                     </button>
                     <button
-                      className="btn h-auto px-8 py-4 text-2xl"
-                      onClick={handleNextCard}
+                      className="btn btn-error h-auto px-8 py-4 text-2xl"
+                      onClick={() => handleNextCard(false)}
                     >
-                      Next (N)
+                      Fail (A)
+                    </button>
+                    <button
+                      className="btn btn-success h-auto px-8 py-4 text-2xl"
+                      onClick={() => handleNextCard(true)}
+                    >
+                      Guess (G)
                     </button>
                   </div>
                 ) : (
