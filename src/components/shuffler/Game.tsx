@@ -11,6 +11,7 @@ const Game = () => {
   const [game, refetch, error, gameFetching] = useGame(gameId);
   const [updateGame, status, _updateError, gameUpdating] = useGameUpdate();
   const [flipped, setFlipped] = useState(false);
+  const [nextFlipped, setNextFlipped] = useState(false);
   const [startNewGame, isStartingNewGame] = useStartNewGame((gameId) =>
     setGameId(gameId),
   );
@@ -159,10 +160,17 @@ const Game = () => {
         <div>
           <div className="mb-4 min-w-96 text-4xl">Up Next</div>
           <div className="my-2 text-3xl">
-            {nextCard ? titleCase(nextCard.shuffled) : 'None!'}
+            {nextCard
+              ? titleCase(nextFlipped ? nextCard.name : nextCard.shuffled)
+              : 'None!'}
           </div>
           <div className="flex flex-col items-start gap-2">
-            <button className="btn btn-accent">Show</button>
+            <button
+              className="btn btn-accent"
+              onClick={() => setNextFlipped(!nextFlipped)}
+            >
+              Show
+            </button>
             <button className="btn btn-primary">Reshuffle</button>
           </div>
         </div>
