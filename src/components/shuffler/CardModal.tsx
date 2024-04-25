@@ -1,7 +1,8 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import useCardMutation from './hooks/useCardMutation';
 import TextInput from '../form/TextInput';
 import LoadingScreen from '../LoadingScreen';
+import useStatusCallback from '../../hooks/useStatusCallback';
 
 const CardModal = forwardRef<
   HTMLDialogElement | null,
@@ -17,20 +18,18 @@ const CardModal = forwardRef<
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const [mutateCard, status, error, isPending] = useCardMutation();
 
+  useStatusCallback(status, {
+    onSuccessfulResponse: () => {
+      modalRef.current?.close();
+      setName('');
+      onSuccess?.();
+    },
+  });
+
   useImperativeHandle<HTMLDialogElement | null, HTMLDialogElement | null>(
     ref,
     () => modalRef.current,
   );
-
-  useEffect(() => {
-    if (!status) return;
-
-    if (status.status >= 200 && status.status < 300) {
-      modalRef.current?.close();
-      setName('');
-      onSuccess?.();
-    }
-  }, [status, onSuccess, setName]);
 
   return (
     <dialog className="modal" ref={modalRef}>

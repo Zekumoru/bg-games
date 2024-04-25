@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCardsQuery from './hooks/useCardsQuery';
-import CardItem from './CardItem';
 import CreateCardModal from './CreateCardModal';
 import EditCardModal from './EditCardModal';
 import useCardMutation from './hooks/useCardMutation';
 import LoadingScreen from '../LoadingScreen';
+import CardsList from './CardsList';
+import useStatusCallback from '../../hooks/useStatusCallback';
 
 const Cards = () => {
   const createModalRef = useRef<HTMLDialogElement>(null);
@@ -13,13 +14,10 @@ const Cards = () => {
   const navigate = useNavigate();
   const [cards, refetchCards, cardsError, isCardsFetching] = useCardsQuery();
   const [nameToEdit, setNameToEdit] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [mutateCard, status, _mutationError, isMutationPending] =
     useCardMutation();
-
-  useEffect(() => {
-    if (!status) return;
-    if (status.status >= 200 && status.status < 300) refetchCards();
-  }, [status, refetchCards]);
+  useStatusCallback(status, { onSuccessfulResponse: () => refetchCards() });
 
   return (
     <div className="page-center p-4">
@@ -44,34 +42,16 @@ const Cards = () => {
       </div>
 
       <h2 className="mb-4 mt-6">List of cards</h2>
-      {isCardsFetching ? (
-        <div>Loading cards...</div>
-      ) : cardsError ? (
-        <div>
-          Could not get cards from the server. (Error: {cardsError.message})
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-4">
-          {cards.length === 0 ? (
-            <li>There are no cards yet.</li>
-          ) : (
-            cards.map((card, index) => (
-              <CardItem
-                key={card.name}
-                card={card}
-                index={index}
-                onDeleteClick={(name) => {
-                  mutateCard({ type: 'delete', name });
-                }}
-                onEditClick={(name) => {
-                  setNameToEdit(name);
-                  updateModalRef.current?.showModal();
-                }}
-              />
-            ))
-          )}
-        </ul>
-      )}
+      <CardsList
+        cards={cards}
+        errMessage={cardsError?.message}
+        isLoading={isCardsFetching}
+        onDeleteClick={({ name }) => mutateCard({ type: 'delete', name })}
+        onEditClick={({ name }) => {
+          setNameToEdit(name);
+          updateModalRef.current?.showModal();
+        }}
+      />
 
       <CreateCardModal ref={createModalRef} onSuccess={refetchCards} />
 

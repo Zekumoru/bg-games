@@ -15,6 +15,7 @@ const Game = () => {
   const scrollToGameViewARef = useRef<HTMLAnchorElement | null>(null);
   const [gameId, setGameId] = useLocalStorage('gameId');
   const [game, refetch, error, gameFetching] = useGame(gameId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [updateGame, status, _updateError, gameUpdating] = useGameUpdate();
   const [flipped, setFlipped] = useState(false);
   const [nextFlipped, setNextFlipped] = useState(false);

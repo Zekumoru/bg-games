@@ -8,8 +8,8 @@ const CardItem = ({
 }: {
   card: Card;
   index: number;
-  onEditClick?: (name: string) => void;
-  onDeleteClick?: (name: string) => void;
+  onEditClick?: (card: Card) => void;
+  onDeleteClick?: (card: Card) => void;
 }) => {
   const { name } = card;
 
@@ -21,12 +21,12 @@ const CardItem = ({
           <div>{name}</div>
         </div>
         <div className="card-actions">
-          <button className="btn" onClick={() => onEditClick?.(name)}>
+          <button className="btn" onClick={() => onEditClick?.(card)}>
             Edit
           </button>
           <button
             className="btn btn-error"
-            onClick={() => onDeleteClick?.(name)}
+            onClick={() => onDeleteClick?.(card)}
           >
             Delete
           </button>
