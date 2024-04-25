@@ -1,19 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import LoadingScreen from './LoadingScreen';
-import useLocalStorage from '../hooks/useLocalStorage';
-import useStartNewGame from './shuffler/hooks/useStartNewGame';
+import useGameId from './shuffler/hooks/useGameId';
 
 const Shuffler = () => {
   const navigate = useNavigate();
-  const [startNewGame, isPending] = useStartNewGame(() =>
+  const [gameId, generateNewGame, isLoading] = useGameId(() =>
     navigate('/shuffler/game'),
   );
-  // use the gameId here to check if a game already exists
-  const gameId = useLocalStorage('gameId')[0];
 
   return (
     <div className="page-center p-4">
-      {isPending && <LoadingScreen />}
+      {isLoading && <LoadingScreen />}
 
       <h1 className="mb-4">Shuffler</h1>
 
@@ -22,7 +19,7 @@ const Shuffler = () => {
       </p>
 
       <div className="my-4 flex flex-col items-start gap-2">
-        <button className="btn btn-primary" onClick={() => startNewGame()}>
+        <button className="btn btn-primary" onClick={() => generateNewGame()}>
           Start new game
         </button>
 

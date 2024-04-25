@@ -1,18 +1,18 @@
 import { useEffect } from 'react';
 import { StatusResponse } from '../types/response';
 
-type OnResponse = (status: StatusResponse) => void;
+type OnResponse<T extends StatusResponse> = (status: T) => void;
 
-const useStatusCallback = (
-  status: StatusResponse | undefined,
+const useStatusCallback: <T extends StatusResponse>(
+  status: T | undefined,
   options?: {
-    onInformationalResponse?: OnResponse;
-    onSuccessfulResponse?: OnResponse;
-    onRedirectionResponse?: OnResponse;
-    onClientErrorResponse?: OnResponse;
-    onServerErrorResponse?: OnResponse;
+    onInformationalResponse?: OnResponse<T>;
+    onSuccessfulResponse?: OnResponse<T>;
+    onRedirectionResponse?: OnResponse<T>;
+    onClientErrorResponse?: OnResponse<T>;
+    onServerErrorResponse?: OnResponse<T>;
   },
-) => {
+) => void = (status, options) => {
   useEffect(() => {
     if (!status) return;
     if (!options) return;
